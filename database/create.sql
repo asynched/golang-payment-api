@@ -1,0 +1,14 @@
+-- Create schema
+CREATE TABLE IF NOT EXISTS "users" (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  name VARCHAR(255) NOT NULL,
+  email VARCHAR(255) NOT NULL UNIQUE,
+  cpf VARCHAR(11) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Add indexes
+CREATE UNIQUE INDEX IF NOT EXISTS "users_email_unique" ON "users" ("email");
+
+CREATE UNIQUE INDEX IF NOT EXISTS "users_cpf_unique" ON "users" ("cpf");
