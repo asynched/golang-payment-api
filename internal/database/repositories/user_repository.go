@@ -33,7 +33,7 @@ type GetUserByEmailInput struct {
 }
 
 const getUserByEmailQuery = `
-	SELECT id, name, email, cpf, password, created_at FROM users WHERE email = $1;
+	SELECT id, name, email, cpf, password, balance, created_at FROM users WHERE email = $1;
 `
 
 func (repository *UserRepository) GetUserByEmail(data GetUserByEmailInput) (*models.User, error) {
@@ -41,7 +41,29 @@ func (repository *UserRepository) GetUserByEmail(data GetUserByEmailInput) (*mod
 
 	user := models.User{}
 
-	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Cpf, &user.Password, &user.CreatedAt)
+	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Cpf, &user.Password, &user.Balance, &user.CreatedAt)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
+type GetUserByIdInput struct {
+	Id int
+}
+
+const getUserByIdQuery = `
+	SELECT id, name, email, cpf, password, balance, created_at FROM users WHERE id = $1;
+`
+
+func (repository *UserRepository) GetUserById(data GetUserByIdInput) (*models.User, error) {
+	row := repository.db.QueryRow(getUserByIdQuery, data.Id)
+
+	user := models.User{}
+
+	err := row.Scan(&user.Id, &user.Name, &user.Email, &user.Cpf, &user.Password, &user.Balance, &user.CreatedAt)
 
 	if err != nil {
 		return nil, err

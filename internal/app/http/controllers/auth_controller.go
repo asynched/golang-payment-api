@@ -15,7 +15,7 @@ type AuthController struct {
 	jwtService     *services.JwtService
 }
 
-func (auth *AuthController) Register(ctx *fiber.Ctx) error {
+func (controller *AuthController) Register(ctx *fiber.Ctx) error {
 	data := schemas.CreateUserSchema{}
 
 	if err := ctx.BodyParser(&data); err != nil {
@@ -24,9 +24,10 @@ func (auth *AuthController) Register(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if valid, message := data.IsValid(); !valid {
+	if ok, errors := data.IsValid(); !ok {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": message,
+			"message": "Invalid data",
+			"errors":  errors,
 		})
 	}
 
@@ -37,7 +38,7 @@ func (auth *AuthController) Register(ctx *fiber.Ctx) error {
 		Password: data.Password,
 	}
 
-	if err := auth.userRepository.CreateUser(input); err != nil {
+	if err := controller.userRepository.CreateUser(input); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"message": err.Error(),
 		})
@@ -48,7 +49,7 @@ func (auth *AuthController) Register(ctx *fiber.Ctx) error {
 	})
 }
 
-func (auth *AuthController) SignIn(ctx *fiber.Ctx) error {
+func (controller *AuthController) SignIn(ctx *fiber.Ctx) error {
 	data := schemas.SignInSchema{}
 
 	if err := ctx.BodyParser(&data); err != nil {
@@ -57,9 +58,10 @@ func (auth *AuthController) SignIn(ctx *fiber.Ctx) error {
 		})
 	}
 
-	if valid, message := data.IsValid(); !valid {
+	if valid, errors := data.IsValid(); !valid {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"message": message,
+			"message": "Invalid data",
+			"errors":  errors,
 		})
 	}
 
@@ -67,7 +69,7 @@ func (auth *AuthController) SignIn(ctx *fiber.Ctx) error {
 		Email: data.Email,
 	}
 
-	user, err := auth.userRepository.GetUserByEmail(input)
+	user, err := controller.userRepository.GetUserByEmail(input)
 
 	if err != nil {
 		return ctx.Status(fiber.StatusNotFound).JSON(fiber.Map{
@@ -82,7 +84,7 @@ func (auth *AuthController) SignIn(ctx *fiber.Ctx) error {
 	}
 
 	log.Printf("Authenticating user: %s\n", user)
-	token, err := auth.jwtService.Sign(jwt.MapClaims{
+	token, err := controller.jwtService.Sign(jwt.MapClaims{
 		"id": user.Id,
 	})
 

@@ -15,6 +15,12 @@ func (service *JwtService) Sign(data jwt.MapClaims) (string, error) {
 	return token.SignedString([]byte(os.Getenv("JWT_SECRET_KEY")))
 }
 
+func (service *JwtService) ValidateToken(token string, claims jwt.MapClaims) (*jwt.Token, error) {
+	return jwt.ParseWithClaims(token, claims, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET_KEY")), nil
+	})
+}
+
 func NewJwtService() *JwtService {
 	return &JwtService{}
 }
