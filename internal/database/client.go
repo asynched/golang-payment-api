@@ -7,13 +7,14 @@ import (
 )
 
 var database *sql.DB = nil
+var databaseFilename = "./database.sqlite"
 
 func CreateClient() *sql.DB {
 	if database != nil {
 		return database
 	}
 
-	db, err := sql.Open("sqlite3", "./database.sqlite")
+	db, err := sql.Open("sqlite3", databaseFilename)
 
 	if err != nil {
 		panic("Could not establish a connection with the database")
